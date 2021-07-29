@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:rive/rive.dart';
 import 'package:assets_audio_player/assets_audio_player.dart';
+import 'package:cron/cron.dart';
 
 void main() {
   runApp(MaterialApp(
@@ -18,6 +19,9 @@ class MemoryGame extends StatefulWidget {
 }
 
 class _MemoryGameState extends State<MemoryGame> {
+  final cron = Cron();
+  var rng = new Random();
+  var countDown = 0;
 
   String triangleAnimationAsset = "assets/trianglebtn.riv";
   String starAnimationAsset = "assets/starbtn.riv";
@@ -36,7 +40,34 @@ class _MemoryGameState extends State<MemoryGame> {
 
   final double edgeInsets = 15.0;
 
+  var arrayBIndex = 0;
+  var arrayBSubIndex = 0;
+  var gameIndex = 0;
+
+  final arrayC = [
+    [
+      [0, 3, 2, 1],
+      [1, 0, 3, 2],
+      [3, 0, 1, 2]
+    ],
+    [
+      [0, 1, 2, 3],
+      [0, 3, 2, 3],
+      [1, 0, 3, 1]
+    ],
+    [
+      [3, 2, 1, 0],
+      [1, 2, 1, 0],
+      [2, 1, 1, 3]
+    ]
+  ];
+  // ArrayB is the whole game array
+  var arrayB = [];
+  // ArrayA is starting one by one from arrayB
+  var arrayA = [];
+
   var score = 0;
+  bool _isPlaying = false;
 
   void playSound(String pathName) async {
     await AssetsAudioPlayer.newPlayer().open(
@@ -75,6 +106,89 @@ class _MemoryGameState extends State<MemoryGame> {
     playSound("assets/sound/FunnyBell.mp3");
   }
 
+  void gameStart(bool restart) async {
+    arrayBIndex = 0;
+    arrayBSubIndex = 0;
+    gameIndex = 0;
+    arrayA = [];
+    arrayB = arrayC[rng.nextInt(arrayC.length - 1)];
+    if (restart) {
+      _isPlaying = true;
+      addToArrayA();
+    } else {
+      _isPlaying = false;
+      setState(() {});
+      await Future.delayed(Duration(seconds: 1));
+    }
+  }
+
+  void checkActionBtn(int i) async {
+    restartCountDown();
+    if (i == arrayA[gameIndex]) {
+      if (gameIndex >= arrayA.length - 1) {
+        await Future.delayed(Duration(seconds: 1));
+        if (arrayBIndex <= 0) {
+          score += 1;
+        } else {
+          score += arrayBIndex * 10;
+        }
+        addToArrayA();
+      } else {
+        gameIndex++;
+      }
+    } else {
+      playFailure();
+      gameStart(false);
+    }
+  }
+
+  void addToArrayA() async {
+    gameIndex = 0;
+    if (arrayBSubIndex >= arrayB[arrayBIndex].length) {
+      if (arrayBIndex >= arrayB.length - 1) {
+        playSuccess();
+        gameStart(false);
+      } else {
+        playArraySuccess();
+        await Future.delayed(Duration(seconds: 3));
+        arrayBSubIndex = 0;
+        arrayBIndex++;
+        arrayA.add(arrayB[arrayBIndex][arrayBSubIndex]);
+        arrayBSubIndex++;
+      }
+    } else {
+      arrayA.add(arrayB[arrayBIndex][arrayBSubIndex]);
+      arrayBSubIndex++;
+    }
+    playArrayA();
+  }
+
+  void playArrayA() async {
+    for (var i = 0; i < arrayA.length; i++) {
+      playNote(arrayA[i] + 1);
+      switch (arrayA[i]) {
+        case 0:
+          _controllerTrg.isActive = true;
+          break;
+        case 1:
+          _controllerStr.isActive = true;
+          break;
+        case 2:
+          _controllerSqr.isActive = true;
+          break;
+        case 3:
+          _controllerCrl.isActive = true;
+          break;
+        default:
+      }
+      setState(() {});
+      await Future.delayed(Duration(milliseconds: 500));
+    }
+  }
+
+  void restartCountDown() {
+    countDown = 7;
+  }
 
   @override
   void initState() {
@@ -103,6 +217,19 @@ class _MemoryGameState extends State<MemoryGame> {
       onStop: () => setState(() => _isPlayingStr = false),
       onStart: () => setState(() => _isPlayingStr = true),
     );
+    restartCountDown();
+    cron.schedule(Schedule.parse('*/2 * * * * *'), () async {
+      if (countDown <= 0) {
+        if (_isPlaying) {
+          gameStart(false);
+          playFailure();
+        }
+      } else {
+        if (_isPlaying) {
+          countDown -= 1;
+        }
+      }
+    });
   }
 
   Widget btn(double? h, double? w, int btnIndex, String animation,
@@ -127,6 +254,7 @@ class _MemoryGameState extends State<MemoryGame> {
                     break;
                 default:
           }
+          checkActionBtn(btnIndex);
         },
         child: RiveAnimation.asset(animation,
             animations: const ['Animation 1'], controllers: [_controller]),
@@ -178,7 +306,10 @@ class _MemoryGameState extends State<MemoryGame> {
                       width: 130,
                       child: FloatingActionButton(
                         backgroundColor: Colors.blue,
-                        onPressed: () {},
+                        onPressed: () {
+                          restartCountDown();
+                          gameStart(true);
+                        },
                         elevation: 1,
                         child: new Icon(
                           _isPlaying ? Icons.pause_rounded : Icons.play_arrow,
