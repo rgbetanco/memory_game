@@ -35,6 +35,8 @@ class _MemoryGameState extends State<MemoryGame> {
 
   final double edgeInsets = 15.0;
 
+  var score = 0;
+
   @override
   void initState() {
     /// #region controller setup
@@ -107,6 +109,21 @@ class _MemoryGameState extends State<MemoryGame> {
                 Container(
                   child: Padding(
                     padding: EdgeInsets.all(100.0),
+                    child: CustomPaint(
+                      size: Size(200, 200),
+                      painter: CirclePainter(),
+                      child: GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            score = 0;
+                          });
+                        },
+                        child: Text(
+                          score.toString(),
+                          style: TextStyle(fontSize: 70, color: Colors.white),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
               ],
@@ -167,5 +184,23 @@ class _MemoryGameState extends State<MemoryGame> {
         ),
       ),
     );
+  }
+}
+
+class CirclePainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    var paint = Paint()
+      ..color = Colors.pink
+      ..strokeWidth = 15;
+
+    Offset center = Offset(size.width / 2, size.height / 2);
+
+    canvas.drawCircle(center, 80, paint);
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) {
+    return false;
   }
 }
