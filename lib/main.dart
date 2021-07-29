@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:rive/rive.dart';
+import 'package:assets_audio_player/assets_audio_player.dart';
 
 void main() {
   runApp(MaterialApp(
@@ -36,6 +37,44 @@ class _MemoryGameState extends State<MemoryGame> {
   final double edgeInsets = 15.0;
 
   var score = 0;
+
+  void playSound(String pathName) async {
+    await AssetsAudioPlayer.newPlayer().open(
+      Audio(pathName),
+      showNotification: true,
+    );
+  }
+
+  void playNote(int i) {
+    switch (i) {
+      case 1:
+        playSound("assets/sound/note1.wav");
+        break;
+      case 2:
+        playSound("assets/sound/note3.wav");
+        break;
+      case 3:
+        playSound("assets/sound/note5.wav");
+        break;
+      case 4:
+        playSound("assets/sound/note7.wav");
+        break;
+      default:
+    }
+  }
+
+  void playSuccess() {
+    playSound("assets/sound/ChildrenYeah.mp3");
+  }
+
+  void playArraySuccess() {
+    playSound("assets/sound/ChildrenYeah.mp3");
+  }
+
+  void playFailure() {
+    playSound("assets/sound/FunnyBell.mp3");
+  }
+
 
   @override
   void initState() {
@@ -141,6 +180,11 @@ class _MemoryGameState extends State<MemoryGame> {
                         backgroundColor: Colors.blue,
                         onPressed: () {},
                         elevation: 1,
+                        child: new Icon(
+                          _isPlaying ? Icons.pause_rounded : Icons.play_arrow,
+                          color: Colors.white,
+                          size: 60.0,
+                        ),
                       ),
                     ),),
               ],
