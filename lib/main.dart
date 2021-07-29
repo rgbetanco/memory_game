@@ -18,7 +18,6 @@ class MemoryGame extends StatefulWidget {
 }
 
 class _MemoryGameState extends State<MemoryGame> {
-
   String triangleAnimationAsset = "assets/trianglebtn.riv";
   String starAnimationAsset = "assets/starbtn.riv";
   String squareAnimationAsset = "assets/squarebtn.riv";
@@ -37,6 +36,7 @@ class _MemoryGameState extends State<MemoryGame> {
   final double edgeInsets = 15.0;
 
   var score = 0;
+  bool _isPlaying = false;
 
   void playSound(String pathName) async {
     await AssetsAudioPlayer.newPlayer().open(
@@ -75,7 +75,6 @@ class _MemoryGameState extends State<MemoryGame> {
     playSound("assets/sound/FunnyBell.mp3");
   }
 
-
   @override
   void initState() {
     /// #region controller setup
@@ -112,20 +111,20 @@ class _MemoryGameState extends State<MemoryGame> {
       width: w,
       child: GestureDetector(
         onTap: () {
-            switch (btnIndex) {
-                case 0:
-                    _isPlayingTrg ? null : _controllerTrg.isActive = true;
-                    break;
-                case 1:
-                    _isPlayingStr ? null : _controllerStr.isActive = true;
-                    break;
-                case 2:
-                    _isPlayingSqr ? null : _controllerSqr.isActive = true;
-                    break;
-                case 3:
-                    _isPlayingCrl ? null : _controllerCrl.isActive = true;
-                    break;
-                default:
+          switch (btnIndex) {
+            case 0:
+              _isPlayingTrg ? null : _controllerTrg.isActive = true;
+              break;
+            case 1:
+              _isPlayingStr ? null : _controllerStr.isActive = true;
+              break;
+            case 2:
+              _isPlayingSqr ? null : _controllerSqr.isActive = true;
+              break;
+            case 3:
+              _isPlayingCrl ? null : _controllerCrl.isActive = true;
+              break;
+            default:
           }
         },
         child: RiveAnimation.asset(animation,
@@ -172,21 +171,22 @@ class _MemoryGameState extends State<MemoryGame> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Padding(
-                    padding: const EdgeInsets.all(26.0),
-                child: Container(
-                      height: 130,
-                      width: 130,
-                      child: FloatingActionButton(
-                        backgroundColor: Colors.blue,
-                        onPressed: () {},
-                        elevation: 1,
-                        child: new Icon(
-                          _isPlaying ? Icons.pause_rounded : Icons.play_arrow,
-                          color: Colors.white,
-                          size: 60.0,
-                        ),
+                  padding: const EdgeInsets.all(26.0),
+                  child: Container(
+                    height: 130,
+                    width: 130,
+                    child: FloatingActionButton(
+                      backgroundColor: Colors.blue,
+                      onPressed: () {},
+                      elevation: 1,
+                      child: new Icon(
+                        _isPlaying ? Icons.pause_rounded : Icons.play_arrow,
+                        color: Colors.white,
+                        size: 60.0,
                       ),
-                    ),),
+                    ),
+                  ),
+                ),
               ],
             ),
             Row(
@@ -204,7 +204,7 @@ class _MemoryGameState extends State<MemoryGame> {
                     child: btn(130, 130, 1, starAnimationAsset, _controllerStr),
                   ),
                 ),
-            ],
+              ],
             ),
             Row(
               children: [
@@ -222,7 +222,7 @@ class _MemoryGameState extends State<MemoryGame> {
                         130, 130, 3, circularAnimationAsset, _controllerCrl),
                   ),
                 ),
-            ],
+              ],
             ),
           ],
         ),
