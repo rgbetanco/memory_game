@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:rive/rive.dart';
 
 void main() {
   runApp(MaterialApp(
@@ -16,6 +17,82 @@ class MemoryGame extends StatefulWidget {
 }
 
 class _MemoryGameState extends State<MemoryGame> {
+
+  String triangleAnimationAsset = "assets/trianglebtn.riv";
+  String starAnimationAsset = "assets/starbtn.riv";
+  String squareAnimationAsset = "assets/squarebtn.riv";
+  String circularAnimationAsset = "assets/circularbtn.riv";
+
+  late RiveAnimationController _controllerSqr;
+  late RiveAnimationController _controllerCrl;
+  late RiveAnimationController _controllerTrg;
+  late RiveAnimationController _controllerStr;
+
+  bool _isPlayingSqr = false;
+  bool _isPlayingCrl = false;
+  bool _isPlayingTrg = false;
+  bool _isPlayingStr = false;
+
+  final double edgeInsets = 15.0;
+
+  @override
+  void initState() {
+    /// #region controller setup
+    _controllerSqr = OneShotAnimation(
+      'Animation 1',
+      autoplay: false,
+      onStop: () => setState(() => _isPlayingSqr = false),
+      onStart: () => setState(() => _isPlayingSqr = true),
+    );
+    _controllerCrl = OneShotAnimation(
+      'Animation 1',
+      autoplay: false,
+      onStop: () => setState(() => _isPlayingCrl = false),
+      onStart: () => setState(() => _isPlayingCrl = true),
+    );
+    _controllerTrg = OneShotAnimation(
+      'Animation 1',
+      autoplay: false,
+      onStop: () => setState(() => _isPlayingTrg = false),
+      onStart: () => setState(() => _isPlayingTrg = true),
+    );
+    _controllerStr = OneShotAnimation(
+      'Animation 1',
+      autoplay: false,
+      onStop: () => setState(() => _isPlayingStr = false),
+      onStart: () => setState(() => _isPlayingStr = true),
+    );
+  }
+
+  Widget btn(double? h, double? w, int btnIndex, String animation,
+      RiveAnimationController _controller) {
+    return Container(
+      height: h,
+      width: w,
+      child: GestureDetector(
+        onTap: () {
+            switch (btnIndex) {
+                case 0:
+                    _isPlayingTrg ? null : _controllerTrg.isActive = true;
+                    break;
+                case 1:
+                    _isPlayingStr ? null : _controllerStr.isActive = true;
+                    break;
+                case 2:
+                    _isPlayingSqr ? null : _controllerSqr.isActive = true;
+                    break;
+                case 3:
+                    _isPlayingCrl ? null : _controllerCrl.isActive = true;
+                    break;
+                default:
+          }
+        },
+        child: RiveAnimation.asset(animation,
+            animations: const ['Animation 1'], controllers: [_controller]),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -52,10 +129,39 @@ class _MemoryGameState extends State<MemoryGame> {
               ],
             ),
             Row(
-              children: [],
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.all(edgeInsets),
+                    child: btn(
+                        130, 130, 0, triangleAnimationAsset, _controllerTrg),
+                  ),
+                ),
+                Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.all(edgeInsets),
+                    child: btn(130, 130, 1, starAnimationAsset, _controllerStr),
+                  ),
+                ),
+            ],
             ),
             Row(
-              children: [],
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.all(edgeInsets),
+                    child:
+                        btn(130, 130, 2, squareAnimationAsset, _controllerSqr),
+                  ),
+                ),
+                Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.all(edgeInsets),
+                    child: btn(
+                        130, 130, 3, circularAnimationAsset, _controllerCrl),
+                  ),
+                ),
+            ],
             ),
           ],
         ),
