@@ -24,6 +24,7 @@ class _MemoryGameState extends State<MemoryGame> {
           mainAxisAlignment: MainAxisAlignment.end,
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
+            // score label
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -34,6 +35,7 @@ class _MemoryGameState extends State<MemoryGame> {
                 ),
               ],
             ),
+            //start button
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -51,6 +53,7 @@ class _MemoryGameState extends State<MemoryGame> {
                     ),),
               ],
             ),
+            //play buttons
             Row(
               children: [],
             ),
